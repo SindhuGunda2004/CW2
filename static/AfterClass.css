@@ -1,0 +1,111 @@
+body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin: 0%;
+    background-color: #fff2b2;
+}
+
+.navbar {
+    background-color: black;
+    color: #ffe14c;
+    margin: 0%;
+    padding: 1px;
+    font-size: 25px;
+    margin-bottom: 10px;
+}
+
+.products-container {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: medium;
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.product {
+    background-color: #ffe14c;
+    width: 27%;
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid #383737;
+    border-radius: 5%;
+    box-sizing: content-box;
+}
+
+.product .content {
+    display: flex;
+    align-items: center;
+}
+
+.product figure {
+    margin-right: 10px;
+}
+
+.product .text {
+    flex-grow: 1;
+    margin-left: 50px;
+}
+
+.product button {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-top: 10px;
+    margin-left: 100px;
+    padding: 5px;
+    color: #ffe14c;
+    background-color: black;
+    border: 7px solid;
+    font-size: 15px;
+}
+
+.product button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.product span {
+    margin-top: 10px;
+    margin-left: 5px;
+}
+
+.sortby {
+    margin-left: 33px;
+    font-size: 17px;
+}
+
+nav input[type="text"] {
+    width: 385px;
+    height: 25px;
+    margin-top: 15px;
+}
+
+.checkout,
+h2 {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-left: 5px;
+}
+
+.checkout,
+p {
+    font-size: large;
+}
+
+.cartPage,
+h2 {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-left: 5px;
+}
+
+.placeOrd {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: #ffe14c;
+    border: none;
+    background-color: black;
+    font-size: 17px;
+    border-radius: 2px solid black;
+}
+
+.placeOrd:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

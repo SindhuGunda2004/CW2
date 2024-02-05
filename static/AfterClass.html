@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>After School Adventures</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./AfterClass.css" type="text/css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- page heading along with the checkout button -->
+        <header class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="text-align: center; margin-left: 590px; font-size: 25px;">After School Adventures
+                <button class="fas fa-cart-arrow-down"
+                    style="margin-left: 500px; position: absolute; background-color: #ffe14c; border: none; border-radius: 2px solid; padding: 4px;"
+                    v-on:click="toggleCartPage" :disabled="cartItemCount === 0">
+                    {{cartItemCount}}
+                </button>
+            </p>
+        </header>
+        <div v-if="showProduct">
+            <!-- navigation area with search bar and sorting -->
+            <nav>
+                <!-- search bar -->
+                <span class="searchbar"><input type="text" style="margin-left: 515px; font-size: 15px;"
+                        placeholder="Search" v-model="searchVal">
+
+                </span>
+                <!-- sorting and ordering -->
+                <div class="sortby">
+                    <label>Sort By:</label>
+                    <select v-model="selectedSort">
+                        <option value="price">Price</option>
+                        <option value="subject">Subject</option>
+                        <option value="location">Location</option>
+                        <option value="availability">Availability</option>
+                    </select>
+                    <label style="margin-left: 15px;">Order By:</label>
+                    <select v-model="selectedOrder">
+                        <option value="AscDesc">Ascending to Descending</option>
+                        <option value="DescAsc">Descending to Ascending</option>
+                    </select>
+                </div>
+            </nav>
+
+            <!-- displays all the products -->
+            <div class="products-container">
+                <div v-for="product in searchingAndSortedProducts" class="product">
+                    <div class="content">
+                        <figure>
+                            <img v-bind:src="product.image" height="100px" width="100px" alt="Product Image">
+                        </figure>
+                        <div class="text">
+                            <p>Subject: {{product.subject}} </p>
+                            <p>Location: {{product.location}}</p>
+                            <p>Price: AED {{product.price}} </p>
+                            <p>Slots Available: {{product.slotsAvailable}}</p>
+                        </div>
+                    </div>
+                    <button v-on:click="addToCart(product)" v-if="canAddToCart(product)">
+                        Add to Cart
+                    </button>
+                    <button disabled="disabled" v-else>
+                        Add to Cart
+                    </button>
+                    <span v-if="product.slotsAvailable === 0">All Out!</span>
+                    <span v-else-if="product.slotsAvailable < 5">
+                        Only {{product.slotsAvailable}} left!
+                    </span>
+                    <span v-else>Buy Now!!</span>
+                </div>
+            </div>
+        </div>
+        <!-- this is the cart page or checkout page -->
+        <div class="cartPage" v-else>
+            <h2>Shopping Cart</h2>
+            <div v-if="cartItemCount === 0">Your cart is empty.</div>
+            <div v-else>
+                <div class="products-container">
+                    <div v-for="product in scart" class="product">
+                        <div class="content">
+                            <figure>
+                                <img v-bind:src="getProductImage(product.id)" height="100px" width="100px"
+                                    alt="Product Image">
+                            </figure>
+                            <div class="text">
+                                <p>Subject: {{getProductSubject(product.id)}} </p>
+                                <p>Price: {{ getProductPrice(product.id) }} </p>
+                                <p>Location: {{ getProductLocation(product.id) }}</p>
+                            </div>
+                        </div>
+                        <button v-on:click="removeFromCart(product.id)">Remove from Cart</button>
+                    </div>
+                </div>
+                <p class="tprice">Total Price: {{ totalPrice }}</p>
+                <!-- form to enter details and place order for the subjects -->
+                <div class="checkout" style="margin-bottom: 5px;">
+                    <h2 style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">Checkout
+                    </h2>
+                    <p>
+                        Name:
+                        <input v-model.trim="order.Name">
+                    </p>
+                    <p>
+                        Phone Number:
+                        <input type="number" v-model.trim="order.Phone">
+                    </p>
+                    <button class="placeOrd" v-on:click="submitForm" :disabled="!validateDetails">Place Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- javascript for Vue and other functions -->
+    <script type="text/javascript">
+        // creating Vue instance 
+        let webstore = new Vue({
+            // mounting Vue
+            el: "#app",
+            data: {
+                products: [],
+                selectedSort: '',
+                selectedOrder: '',
+                cart: [],
+                scart: [],
+                showProduct: true,
+                cartIsEmpty: true,
+                order: {
+                    Name: "",
+                    Phone: ""
+                },
+                searchVal: '',
+            },
+            created: function () {
+                console.log("Requesting data from the server ...");
+
+                fetch('http://localhost:3000/collection/Lessons')  // Adjust the URL based on your server route
+                    .then(function (response) {
+                        response.json().then(function (json) {
+                            // Update the products data property with the fetched data
+                            webstore.products = json;
+                            console.log(json);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error('Error fetching data:', error);
+                    });
+            },
+            methods: {
+                // function for adding subject or class into cart
+                // addToCart: function (product) {
+                //     // stores only product id
+                //     this.cart.push(product.id);
+                //     // stores the whole product in the list
+                //     this.scart.push(product);
+                //     // checking for the index of the product we are adding into the cart 
+                //     // its taking the id of the product in scart and checking if its same as the 
+                //     // id passed in add to cart function
+                //     const productIndex = this.products.findIndex(p => p.id === product.id);
+                //     // directly updates the slots from here when a product is added to cart
+                //     this.products[productIndex].slotsAvailable--;
+                // },
+                addToCart: function (product) {
+                    // stores only product id
+                    this.cart.push(product.id);
+                    // stores the whole product in the list
+                    this.scart.push(product);
+
+                    // Update MongoDB slotsAvailable
+                    fetch(`http://localhost:3000/collection/Lessons/${product._id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            slotsAvailable: product.slotsAvailable - 1,
+                        }),
+                    })
+                        .then(response => response.json())
+                        .then(updatedProduct => {
+                            // The updated product from the server can be logged or used as needed
+                            console.log('Product updated in MongoDB:', updatedProduct);
+                        })
+                        .catch(error => {
+                            console.error('Error updating product in MongoDB:', error);
+                        });
+                    // Checking for the index of the product we are adding into the cart
+                    const productIndex = this.products.findIndex(p => p.id === product.id);
+                    // Directly updates the slots from here when a product is added to cart
+                    this.products[productIndex].slotsAvailable--;
+                },
+
+                // funtion for removing a subject or class from the cart
+                // removeFromCart: function (productId) {
+                //     // checking for the index of the product we are removing  
+                //     // its taking the id of the product in scart and checking if its same as the id pased in premove product 
+                //     const index = this.scart.findIndex(product => product.id === productId);
+                //     // splice removes a specific product at specified index and 1 indicated that only 1 product has to be removed 
+                //     // and we put [0] cuz we want the details directly instead of the details in the array
+                //     // so basically by putting [0] we are accessing the first element of the array, so we are directly storing the element
+                //     const removedProduct = this.scart.splice(index, 1)[0];
+                //     const productIndex = this.products.findIndex(p => p.id === removedProduct.id);
+                //     // directly updates the slots from here when a product is removed from cart
+                //     this.products[productIndex].slotsAvailable++;
+                //     // updates cartIsEmpty by checking whether its empty or not
+                //     this.cartIsEmpty = this.scart.length === 0;
+                // },
+                removeFromCart: function (productId) {
+                    // checking for the index of the product we are removing  
+                    // it's taking the id of the product in scart and checking if it's the same as the id passed in remove product 
+                    const index = this.scart.findIndex(product => product.id === productId);
+
+                    if (index !== -1) {
+                        // splice removes a specific product at the specified index, and 1 indicates that only 1 product has to be removed 
+                        // and we put [0] because we want the details directly instead of the details in the array
+                        // so basically by putting [0], we are accessing the first element of the array, so we are directly storing the element
+                        const removedProduct = this.scart.splice(index, 1)[0];
+
+                        // Update MongoDB slotsAvailable
+                        fetch(`http://localhost:3000/collection/Lessons/${removedProduct._id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                // Assuming your MongoDB document has a slotsAvailable field
+                                // Update this based on your MongoDB document structure
+                                slotsAvailable: removedProduct.slotsAvailable + 1,
+                            }),
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Updates cartIsEmpty by checking whether it's empty or not
+                                    removedProduct.slotsAvailable++;
+                                    this.cartIsEmpty = this.scart.length === 0;
+                                    console.log("slots updated sucesfully", removedProduct.slotsAvailable)
+                                } else {
+                                    console.error('Error removing product in cart. Status:', response.status);
+                                    // Handle errors as needed
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error removing product in cart:', error);
+                                // Handle errors as needed
+                            });
+                    }
+                },
+                // this for swicthing between checkout and home page
+                toggleCartPage: function () {
+                    // ? is a ternery operator which works like if else statement, shorthand way of writing if-else
+                    // ? helps shifting between pages works like the toggle button when true it will be product page and 
+                    // when false it will be checkout page
+                    this.showProduct = this.showProduct ? false : true;
+                },
+                // function to check if there are slots available else it will disablt add to cart button
+                canAddToCart: function (product) {
+                    return product.slotsAvailable > 0;
+                },
+                // get image of the subject or class added to cart
+                getProductImage: function (productId) {
+                    const product = this.products.find(p => p.id === productId);
+                    return product ? product.image : '';
+                },
+                // get subject of the subject or class added to cart
+                getProductSubject: function (productId) {
+                    const product = this.products.find(p => p.id === productId);
+                    return product ? product.subject : '';
+                },
+                // get price of the subject or class added to cart
+                getProductPrice: function (productId) {
+                    const product = this.products.find(p => p.id === productId);
+                    return product ? product.price : 0;
+                },
+                // get location of the subject or class added to cart
+                getProductLocation: function (productId) {
+                    const product = this.products.find(p => p.id === productId);
+                    return product ? product.location : '';
+                },
+                submitForm: function () {
+                    const orderDetails = {
+                        name: this.order.Name,
+                        phone: this.order.Phone,
+                        lessonIds: this.scart,
+                    };
+
+                    fetch('http://localhost:3000/collection/Orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderDetails),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Handle success (e.g., show a success message)
+                            alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
+                            window.location.reload();
+                        })
+                        .catch(error => {
+                            // Handle error (e.g., show an error message)
+                            console.error('Error placing order:', error);
+                        });
+                }
+            },
+            computed: {
+                // function gives the count of the items in cart
+                cartItemCount: function () {
+                    return this.scart.length;
+                },
+                // calculates total price of all products added to cart and updates when item is added or removed
+                totalPrice() {
+                    // reduce function goes through every product is scart and then 
+                    // takes only price of those products and adds them up 
+                    return this.scart.reduce((total, product) => total + (this.getProductPrice(product.id)), 0);
+                },
+                // validation of details enetered while placing order 
+                validateDetails: function () {
+                    // checks if only alphabets are entered in the name field
+                    // and also checks if only numbers are entered in the phone field 
+                    return /^[A-Za-z\s]+$/.test(this.order.Name) && /^[0-9]+$/.test(this.order.Phone);
+                },
+                // function to search for subject or class based on location and subject name 
+                // and also sort the products 
+                searchingAndSortedProducts: function () {
+                    // first we are storing all products in the filtered list 
+                    let filteredList = this.products;
+
+                    // search
+                    // the value entered in search bar is stored in searchVal
+                    if (this.searchVal.trim().length > 0) {
+                        // using the filter function we are filtering all products that are returned
+                        // for the conditions inside the filter fucntion
+                        filteredList = filteredList.filter((product) =>
+                            // checks if searchVal is there in subject or location so that it can return subjects 
+                            // that have those letters in subject or location
+                            product.subject.toLowerCase().includes(this.searchVal.trim().toLowerCase()) ||
+                            product.location.toLowerCase().includes(this.searchVal.trim().toLowerCase())
+                        );
+                    }
+                    // sorting
+                    // slice creates a copy of the array so that the original array is unmodified 
+                    let sortedArray = filteredList.slice();
+                    if (this.selectedSort == "price" && this.selectedOrder == "AscDesc") {
+                        function compare(a, b) {
+                            if (a.price > b.price)
+                                return 1;
+                            if (a.price < b.price)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    if (this.selectedSort == "price" && this.selectedOrder == "DescAsc") {
+                        function compare(a, b) {
+                            if (a.price < b.price)
+                                return 1;
+                            if (a.price > b.price)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    if (this.selectedSort == "location" && this.selectedOrder == "AscDesc") {
+                        function compare(a, b) {
+                            if (a.location > b.location)
+                                return 1;
+                            if (a.location < b.location)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    if (this.selectedSort == "location" && this.selectedOrder == "DescAsc") {
+                        function compare(a, b) {
+                            if (a.location < b.location)
+                                return 1;
+                            if (a.location > b.location)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    if (this.selectedSort == "subject" && this.selectedOrder == "AscDesc") {
+                        function compare(a, b) {
+                            if (a.subject > b.subject)
+                                return 1;
+                            if (a.subject < b.subject)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    if (this.selectedSort == "subject" && this.selectedOrder == "DescAsc") {
+                        function compare(a, b) {
+                            if (a.subject < b.subject)
+                                return 1;
+                            if (a.subject > b.subject)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    if (this.selectedSort == "availability" && this.selectedOrder == "AscDesc") {
+                        function compare(a, b) {
+                            if (a.slotsAvailable > b.slotsAvailable)
+                                return 1;
+                            if (a.slotsAvailable < b.slotsAvailable)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    if (this.selectedSort == "availability" && this.selectedOrder == "DescAsc") {
+                        function compare(a, b) {
+                            if (a.slotsAvailable < b.slotsAvailable)
+                                return 1;
+                            if (a.slotsAvailable > b.slotsAvailable)
+                                return -1;
+                            return 0;
+                        }
+                        return sortedArray.sort(compare);
+                    }
+                    return sortedArray;
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
