@@ -27,6 +27,7 @@
                 <!-- search bar -->
                 <span class="searchbar"><input type="text" style="margin-left: 515px; font-size: 15px;"
                         placeholder="Search" v-model="searchVal">
+                    <button @click="searchProducts">Search</button>
 
                 </span>
                 <!-- sorting and ordering -->
@@ -150,18 +151,6 @@
             },
             methods: {
                 // function for adding subject or class into cart
-                // addToCart: function (product) {
-                //     // stores only product id
-                //     this.cart.push(product.id);
-                //     // stores the whole product in the list
-                //     this.scart.push(product);
-                //     // checking for the index of the product we are adding into the cart 
-                //     // its taking the id of the product in scart and checking if its same as the 
-                //     // id passed in add to cart function
-                //     const productIndex = this.products.findIndex(p => p.id === product.id);
-                //     // directly updates the slots from here when a product is added to cart
-                //     this.products[productIndex].slotsAvailable--;
-                // },
                 addToCart: function (product) {
                     // stores only product id
                     this.cart.push(product.id);
@@ -178,35 +167,15 @@
                             slotsAvailable: product.slotsAvailable - 1,
                         }),
                     })
-                        .then(response => response.json())
-                        .then(updatedProduct => {
-                            // The updated product from the server can be logged or used as needed
-                            console.log('Product updated in MongoDB:', updatedProduct);
+                        .then(response => {
+                            response.json()
+                            console.log('Product updated in MongoDB');
                         })
-                        .catch(error => {
-                            console.error('Error updating product in MongoDB:', error);
-                        });
                     // Checking for the index of the product we are adding into the cart
                     const productIndex = this.products.findIndex(p => p.id === product.id);
                     // Directly updates the slots from here when a product is added to cart
                     this.products[productIndex].slotsAvailable--;
                 },
-
-                // funtion for removing a subject or class from the cart
-                // removeFromCart: function (productId) {
-                //     // checking for the index of the product we are removing  
-                //     // its taking the id of the product in scart and checking if its same as the id pased in premove product 
-                //     const index = this.scart.findIndex(product => product.id === productId);
-                //     // splice removes a specific product at specified index and 1 indicated that only 1 product has to be removed 
-                //     // and we put [0] cuz we want the details directly instead of the details in the array
-                //     // so basically by putting [0] we are accessing the first element of the array, so we are directly storing the element
-                //     const removedProduct = this.scart.splice(index, 1)[0];
-                //     const productIndex = this.products.findIndex(p => p.id === removedProduct.id);
-                //     // directly updates the slots from here when a product is removed from cart
-                //     this.products[productIndex].slotsAvailable++;
-                //     // updates cartIsEmpty by checking whether its empty or not
-                //     this.cartIsEmpty = this.scart.length === 0;
-                // },
                 removeFromCart: function (productId) {
                     // checking for the index of the product we are removing  
                     // it's taking the id of the product in scart and checking if it's the same as the id passed in remove product 
@@ -231,20 +200,11 @@
                             }),
                         })
                             .then(response => {
-                                if (response.ok) {
-                                    // Updates cartIsEmpty by checking whether it's empty or not
-                                    removedProduct.slotsAvailable++;
-                                    this.cartIsEmpty = this.scart.length === 0;
-                                    console.log("slots updated sucesfully", removedProduct.slotsAvailable)
-                                } else {
-                                    console.error('Error removing product in cart. Status:', response.status);
-                                    // Handle errors as needed
-                                }
+                                // Updates cartIsEmpty by checking whether it's empty or not
+                                removedProduct.slotsAvailable++;
+                                this.cartIsEmpty = this.scart.length === 0;
+                                console.log("slots updated sucesfully", removedProduct.slotsAvailable)
                             })
-                            .catch(error => {
-                                console.error('Error removing product in cart:', error);
-                                // Handle errors as needed
-                            });
                     }
                 },
                 // this for swicthing between checkout and home page
@@ -298,11 +258,20 @@
                             alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
                             window.location.reload();
                         })
-                        .catch(error => {
-                            // Handle error (e.g., show an error message)
-                            console.error('Error placing order:', error);
-                        });
+                },
+                searchProducts: function () {
+                    // Fetch all products
+                    fetch(`http://localhost:3000/collection/Lessons/${searchVal}`)
+                        // getting all the products here first
+                        .then(function (response) {
+                            response.json().then(function (json) {
+                                // Update the products data property with the fetched data
+                                webstore.products = json;
+                                console.log(json);
+                            });
+                        })
                 }
+
             },
             computed: {
                 // function gives the count of the items in cart
@@ -324,21 +293,9 @@
                 // function to search for subject or class based on location and subject name 
                 // and also sort the products 
                 searchingAndSortedProducts: function () {
-                    // first we are storing all products in the filtered list 
+                    // // first we are storing all products in the filtered list 
                     let filteredList = this.products;
 
-                    // search
-                    // the value entered in search bar is stored in searchVal
-                    if (this.searchVal.trim().length > 0) {
-                        // using the filter function we are filtering all products that are returned
-                        // for the conditions inside the filter fucntion
-                        filteredList = filteredList.filter((product) =>
-                            // checks if searchVal is there in subject or location so that it can return subjects 
-                            // that have those letters in subject or location
-                            product.subject.toLowerCase().includes(this.searchVal.trim().toLowerCase()) ||
-                            product.location.toLowerCase().includes(this.searchVal.trim().toLowerCase())
-                        );
-                    }
                     // sorting
                     // slice creates a copy of the array so that the original array is unmodified 
                     let sortedArray = filteredList.slice();

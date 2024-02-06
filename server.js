@@ -65,6 +65,21 @@ app.post('/collection/:collectionName', (req, res, next) => {
 
 const ObjectID = require("mongodb").ObjectID;
 
+app.get('/collection/:collectionName/:searchQuery', (req, res, next) => {
+    // Extracting the search query from the request query parameters and converting to lowercase
+    const searchQuery = req.query.search.toLowerCase();
+
+    // Using the find method with case-insensitive search on both subject and location fields
+    req.collection.find({ subject: new ObjectID(req.params.searchQuery)
+    }).toArray((err, results) => {
+        if (err) return next(err);
+
+        // Sending the filtered results as the response
+        res.send(results);
+    });
+});
+
+
 app.get('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.findOne({_id: new ObjectID(req.params.id)},
     (e, result) => {
