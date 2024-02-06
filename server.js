@@ -14,7 +14,7 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.originalUrl}`);
+    console.log(req.method, req.originalUrl);
     next(); // Call next middleware in the chain
 })
 
@@ -69,36 +69,7 @@ app.post('/collection/:collectionName', (req, res, next) => {
     });
 });
 
-// app.post('/collection/:collectionName', (req, res, next) => {
-//     // Insert the order details into the orders collection
-//     req.collection.insertOne(orderDetails, (err, result) => {
-//         if (err) return next(err);
-
-//         res.json(result.ops[0]);
-//     });
-// });
-
 const ObjectID = require("mongodb").ObjectID;
-
-// app.get('/collection/:collectionName/:searchQuery', (req, res, next) => {
-//     // Extracting the search query from the request query parameters and converting to lowercase
-//     // const searchQuery = req.query.search.toLowerCase();
-
-//     // Using the find method with case-insensitive search on both subject and location fields
-//     const searchQuery = req.params.searchQuery;
-
-//     req.collection.find({
-//         $or: [
-//             { subject: { $regex: new RegExp(searchQuery, 'i') } },
-//             { location: { $regex: new RegExp(searchQuery, 'i') } }
-//         ]
-//     }).toArray((err, results) => {
-//         if (err) return next(err);
-
-//         // Sending the filtered results as the response
-//         res.send(results);
-//     });
-// });
 
 app.get('/collection/:collectionName/search/:searchQuery', (req, res, next) => {
     // Extracting the search query from the request parameters and converting to lowercase
