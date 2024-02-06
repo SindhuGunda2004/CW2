@@ -25,10 +25,11 @@
             <!-- navigation area with search bar and sorting -->
             <nav>
                 <!-- search bar -->
-                <span class="searchbar"><input type="text" style="margin-left: 515px; font-size: 15px;"
-                        placeholder="Search" v-model="searchVal">
-                    <button @click="searchProducts">Search</button>
-
+                <span class="searchbar">
+                    <!-- @input element calls the searchProducts method every time the input value changes -->
+                    <!-- this is used for the search to be real time -->
+                    <input type="text" style="margin-left: 515px; font-size: 15px;" placeholder="Search"
+                        v-model="searchVal" @input="searchProducts">
                 </span>
                 <!-- sorting and ordering -->
                 <div class="sortby">
@@ -137,7 +138,7 @@
             created: function () {
                 console.log("Requesting data from the server ...");
 
-                fetch('http://localhost:3000/collection/Lessons')  // Adjust the URL based on your server route
+                fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons')  // Adjust the URL based on your server route
                     .then(function (response) {
                         response.json().then(function (json) {
                             // Update the products data property with the fetched data
@@ -158,7 +159,7 @@
                     this.scart.push(product);
 
                     // Update MongoDB slotsAvailable
-                    fetch(`http://localhost:3000/collection/Lessons/${product._id}`, {
+                    fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -188,7 +189,7 @@
                         const removedProduct = this.scart.splice(index, 1)[0];
 
                         // Update MongoDB slotsAvailable
-                        fetch(`http://localhost:3000/collection/Lessons/${removedProduct._id}`, {
+                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${removedProduct._id}`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -243,9 +244,10 @@
                         name: this.order.Name,
                         phone: this.order.Phone,
                         lessonIds: this.scart,
+                        numberOfItems: this.scart.length
                     };
 
-                    fetch('http://localhost:3000/collection/Orders', {
+                    fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -260,18 +262,32 @@
                         })
                 },
                 searchProducts: function () {
-                    // Fetch all products
-                    fetch(`http://localhost:3000/collection/Lessons/${searchVal}`)
-                        // getting all the products here first
-                        .then(function (response) {
-                            response.json().then(function (json) {
+                    // Check if searchVal is defined and not empty
+                    if (this.searchVal && this.searchVal.trim() !== '') {
+                        // Fetch all products
+                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/search/${this.searchVal}`)
+                            .then(response => response.json())
+                            .then(data => {
                                 // Update the products data property with the fetched data
-                                webstore.products = json;
-                                console.log(json);
+                                this.products = data;
+                                console.log(data);
+                            })
+                            .catch(error => {
+                                console.error('Error fetching data:', error);
                             });
-                        })
+                    } else {
+                        // If the searchVal is empty, reset the products to the original list
+                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons`)
+                            .then(response => response.json())
+                            .then(data => {
+                                this.products = data;
+                                console.log(data);
+                            })
+                            .catch(error => {
+                                console.error('Error fetching data:', error);
+                            });
+                    }
                 }
-
             },
             computed: {
                 // function gives the count of the items in cart

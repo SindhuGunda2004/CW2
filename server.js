@@ -1,21 +1,26 @@
 // import dependencies modules
 const express = require('express');
 const app = express();
+var path = require("path");
+var fs = require("fs");
 
-// creating express instance 
-app.use(express.json());
-app.set('port', 3000);
-
-// config express.js
-// when we do get request it cant handle raw json data so make it compatible and usable we use this 
-// this is the first middleware
-app.use((req,res,next) => {
+// CORS middleware
+app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
     res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     next();
 });
+
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl}`);
+    next(); // Call next middleware in the chain
+})
+
+// creating express instance 
+app.use(express.json());
+app.set('port', 3000);
 
 // connecting to MongoDB
 const MongoClient = require("mongodb").MongoClient;
@@ -41,7 +46,17 @@ app.get('/collection/:collectionName', (req, res, next) => {
     // finding the collection and converting it to readable format using toArray
     // the e is if there is an error else it will give the results 
     req.collection.find({}).toArray((e, results) => {
-        if (e) return next (e);
+        if (e) return next(e);
+        res.send(results);
+    })
+});
+
+app.get('/lessons', (req, res, next) => {
+    // finding the collection and converting it to readable format using toArray
+    // the e is if there is an error else it will give the results 
+    req.collection = db.collection("Lessons");
+    req.collection.find({}).toArray((e, results) => {
+        if (e) return next(e);
         res.send(results);
     })
 });
@@ -54,23 +69,47 @@ app.post('/collection/:collectionName', (req, res, next) => {
     });
 });
 
-app.post('/collection/:collectionName', (req, res, next) => {
-    // Insert the order details into the orders collection
-    req.collection.insertOne(orderDetails, (err, result) => {
-        if (err) return next(err);
+// app.post('/collection/:collectionName', (req, res, next) => {
+//     // Insert the order details into the orders collection
+//     req.collection.insertOne(orderDetails, (err, result) => {
+//         if (err) return next(err);
 
-        res.json(result.ops[0]);
-    });
-});
+//         res.json(result.ops[0]);
+//     });
+// });
 
 const ObjectID = require("mongodb").ObjectID;
 
-app.get('/collection/:collectionName/:searchQuery', (req, res, next) => {
-    // Extracting the search query from the request query parameters and converting to lowercase
-    const searchQuery = req.query.search.toLowerCase();
+// app.get('/collection/:collectionName/:searchQuery', (req, res, next) => {
+//     // Extracting the search query from the request query parameters and converting to lowercase
+//     // const searchQuery = req.query.search.toLowerCase();
+
+//     // Using the find method with case-insensitive search on both subject and location fields
+//     const searchQuery = req.params.searchQuery;
+
+//     req.collection.find({
+//         $or: [
+//             { subject: { $regex: new RegExp(searchQuery, 'i') } },
+//             { location: { $regex: new RegExp(searchQuery, 'i') } }
+//         ]
+//     }).toArray((err, results) => {
+//         if (err) return next(err);
+
+//         // Sending the filtered results as the response
+//         res.send(results);
+//     });
+// });
+
+app.get('/collection/:collectionName/search/:searchQuery', (req, res, next) => {
+    // Extracting the search query from the request parameters and converting to lowercase
+    const searchQuery = req.params.searchQuery.toLowerCase();
 
     // Using the find method with case-insensitive search on both subject and location fields
-    req.collection.find({ subject: new ObjectID(req.params.searchQuery)
+    req.collection.find({
+        $or: [
+            { subject: { $regex: new RegExp(searchQuery, 'i') } },
+            { location: { $regex: new RegExp(searchQuery, 'i') } }
+        ]
     }).toArray((err, results) => {
         if (err) return next(err);
 
@@ -80,31 +119,41 @@ app.get('/collection/:collectionName/:searchQuery', (req, res, next) => {
 });
 
 
-app.get('/collection/:collectionName/:id', (req, res, next) => {
-    req.collection.findOne({_id: new ObjectID(req.params.id)},
-    (e, result) => {
-        if (e) next(e)
-        res.send(result)
-    })
+// Serve images using express.static
+app.get('/images', express.static(path.join(__dirname, 'static', 'images')));
+
+// Error handling for images
+app.get(function (request, response, next) {
+    response.status(404).send("Image not found");
+    console.log("file not found");
 });
+
+app.get('/collection/:collectionName/:id', (req, res, next) => {
+    req.collection.findOne({ _id: new ObjectID(req.params.id) },
+        (e, result) => {
+            if (e) next(e)
+            res.send(result)
+        })
+});
+
 
 app.put('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.update(
-        {_id: new ObjectID(req.params.id)},
-        {$set: req.body},
-        {safe: true, multi: false},
+        { _id: new ObjectID(req.params.id) },
+        { $set: req.body },
+        { safe: true, multi: false },
         (e, result) => {
             if (e) return next(e)
-            res.send((result.result.n === 1) ? {msg : "success"} : {msg : "error"})
+            res.send((result.result.n === 1) ? { msg: "success" } : { msg: "error" })
         }
     );
 });
 
 app.delete('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.deleteOne(
-        {_id: new ObjectID(req.params.id)}, (e, result) => {
+        { _id: new ObjectID(req.params.id) }, (e, result) => {
             if (e) return next(e)
-            res.send((result.result.n === 1) ? {msg : "success"} : {msg : "error"});
+            res.send((result.result.n === 1) ? { msg: "success" } : { msg: "error" });
         }
     );
 });
