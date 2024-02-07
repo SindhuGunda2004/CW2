@@ -91,10 +91,10 @@ app.get('/collection/:collectionName/search/:searchQuery', (req, res, next) => {
 
 
 // Serve images using express.static
-app.get('/images', express.static(path.join(__dirname, 'static', 'images')));
+app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
 
 // Error handling for images
-app.get(function (request, response, next) {
+app.use(function (request, response, next) {
     response.status(404).send("Image not found");
     console.log("file not found");
 });
