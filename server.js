@@ -4,6 +4,8 @@ const app = express();
 var path = require("path");
 var fs = require("fs");
 
+app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
+
 // CORS middleware
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -118,8 +120,8 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
     );
 });
 
-// Serve images using express.static
-app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
+// // Serve images using express.static
+// app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
 
 // Error handling for images
 app.use(function (request, response, next) {
