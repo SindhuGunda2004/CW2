@@ -4,8 +4,6 @@ const app = express();
 var path = require("path");
 var fs = require("fs");
 
-app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
-
 // CORS middleware
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,6 +12,8 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     next();
 });
+
+app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
 
 app.use((req, res, next) => {
     console.log(req.method, req.originalUrl);
