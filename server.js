@@ -13,7 +13,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
+app.get('/images', express.static(path.join(__dirname, 'static', 'images')));
 
 app.use((req, res, next) => {
     console.log(req.method, req.originalUrl);
@@ -124,7 +124,7 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
 // app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
 
 // Error handling for images
-app.use(function (request, response, next) {
+app.get(function (request, response, next) {
     response.status(404).send("Image not found");
     console.log("file not found");
 });
