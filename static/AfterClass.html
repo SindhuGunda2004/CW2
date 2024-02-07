@@ -138,7 +138,7 @@
             created: function () {
                 console.log("Requesting data from the server ...");
 
-                fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons')  // Adjust the URL based on your server route
+                fetch('https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons')  // Adjust the URL based on your server route
                     .then(function (response) {
                         response.json().then(function (json) {
                             // Update the products data property with the fetched data
