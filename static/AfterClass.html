@@ -138,7 +138,7 @@
             created: function () {
                 console.log("Requesting data from the server ...");
 
-                fetch('https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons')  // Adjust the URL based on your server route
+                fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons')  // Adjust the URL based on your server route
                     .then(function (response) {
                         response.json().then(function (json) {
                             // Update the products data property with the fetched data
@@ -159,7 +159,7 @@
                     this.scart.push(product);
 
                     // Update MongoDB slotsAvailable
-                    fetch(`https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                    fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -189,7 +189,7 @@
                         const removedProduct = this.scart.splice(index, 1)[0];
 
                         // Update MongoDB slotsAvailable
-                        fetch(`https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${removedProduct._id}`, {
+                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${removedProduct._id}`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -247,7 +247,7 @@
                         numberOfItems: this.scart.length
                     };
 
-                    fetch('https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Orders', {
+                    fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -265,7 +265,7 @@
                     // Check if searchVal is defined and not empty
                     if (this.searchVal && this.searchVal.trim() !== '') {
                         // Fetch all products
-                        fetch(`https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/search/${this.searchVal}`)
+                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/search/${this.searchVal}`)
                             .then(response => response.json())
                             .then(data => {
                                 // Update the products data property with the fetched data
@@ -277,7 +277,7 @@
                             });
                     } else {
                         // If the searchVal is empty, reset the products to the original list
-                        fetch(`https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons`)
+                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons`)
                             .then(response => response.json())
                             .then(data => {
                                 this.products = data;
