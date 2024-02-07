@@ -97,7 +97,6 @@ app.get('/collection/:collectionName/:id', (req, res, next) => {
         })
 });
 
-
 app.put('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.update(
         { _id: new ObjectID(req.params.id) },
@@ -123,7 +122,7 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
 app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
 
 // Error handling for images
-app.use(function (request, response, next) {
+app.get(function (request, response, next) {
     response.status(404).send("Image not found");
     console.log("file not found");
 });
