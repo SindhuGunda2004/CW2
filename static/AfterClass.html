@@ -159,7 +159,7 @@
                     this.scart.push(product);
 
                     // Update MongoDB slotsAvailable
-                    fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                    fetch(`https://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
