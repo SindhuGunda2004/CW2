@@ -89,16 +89,6 @@ app.get('/collection/:collectionName/search/:searchQuery', (req, res, next) => {
     });
 });
 
-
-// Serve images using express.static
-app.get('/images', express.static(path.join(__dirname, 'static', 'images')));
-
-// Error handling for images
-app.get(function (request, response, next) {
-    response.status(404).send("Image not found");
-    console.log("file not found");
-});
-
 app.get('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.findOne({ _id: new ObjectID(req.params.id) },
         (e, result) => {
@@ -127,6 +117,15 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
             res.send((result.result.n === 1) ? { msg: "success" } : { msg: "error" });
         }
     );
+});
+
+// Serve images using express.static
+app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
+
+// Error handling for images
+app.use(function (request, response, next) {
+    response.status(404).send("Image not found");
+    console.log("file not found");
 });
 
 // for AWS
