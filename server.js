@@ -132,7 +132,7 @@ app.get('/images/:imageName', (req, res, next) => {
 // Error handling
 app.use((err, req, res, next) => {
     console.error(err);
-    res.status(500).send('Something went wrong');
+    res.status(500).send('Image not found, Maybe you typed the image name wrong!!');
 });
 
 // for AWS
