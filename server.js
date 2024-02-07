@@ -13,13 +13,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve images using a specific route
-app.get('/images/:imageName', (req, res, next) => {
-    // Assuming 'static/images' is the directory where images are stored
-    const imagePath = path.join(__dirname, 'static', 'images', req.params.imageName);
-    res.sendFile(imagePath);
-});
-
 app.use((req, res, next) => {
     console.log(req.method, req.originalUrl);
     next(); // Call next middleware in the chain
@@ -127,6 +120,13 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
 
 // // Serve images using express.static
 // app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
+
+// Serve images using a specific route
+app.get('/images/:imageName', (req, res, next) => {
+    // Assuming 'static/images' is the directory where images are stored
+    const imagePath = path.join(__dirname, 'static', 'images', req.params.imageName);
+    res.sendFile(imagePath);
+});
 
 // Error handling for images
 app.get(function (request, response, next) {
