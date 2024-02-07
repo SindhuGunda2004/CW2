@@ -18,6 +18,15 @@ app.use((req, res, next) => {
     next(); // Call next middleware in the chain
 })
 
+// Serve images using express.static
+app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
+
+// Error handling for images
+app.use(function (request, response, next) {
+    response.status(404).send("Image not found");
+    console.log("file not found");
+});
+
 // creating express instance 
 app.use(express.json());
 app.set('port', 3000);
@@ -116,15 +125,6 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
             res.send((result.result.n === 1) ? { msg: "success" } : { msg: "error" });
         }
     );
-});
-
-// Serve images using express.static
-app.get('/images', express.static(path.join(__dirname, 'static', 'images')));
-
-// Error handling for images
-app.get(function (request, response, next) {
-    response.status(404).send("Image not found");
-    console.log("file not found");
 });
 
 // for AWS
