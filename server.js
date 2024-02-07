@@ -129,9 +129,10 @@ app.get('/images/:imageName', (req, res, next) => {
 });
 
 // Error handling for images
-app.get(function (request, response, next) {
-    response.status(404).send("Image not found");
-    console.log("file not found");
+// Error handling
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).send('Something went wrong');
 });
 
 // for AWS
