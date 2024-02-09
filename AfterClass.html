@@ -287,7 +287,7 @@
                         lessonIds: this.scart,
                         numberOfItems: this.scart.length
                     };
-                    fetch('http://your-backend-url/collection/Orders', {
+                    fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -300,7 +300,7 @@
                             alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
                             // Update slots in MongoDB for each product in the order
                             this.scart.forEach(product => {
-                                fetch(`http://your-backend-url/collection/Lessons/${product._id}`, {
+                                fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
                                     method: 'PUT',
                                     headers: {
                                         'Content-Type': 'application/json',
