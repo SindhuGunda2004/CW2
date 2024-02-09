@@ -135,42 +135,20 @@
                 },
                 searchVal: '',
             },
-            // created: function () {
-            //     console.log("Requesting data from the server ...");
-
-            //     fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons')  // Adjust the URL based on your server route
-            //         .then(function (response) {
-            //             response.json().then(function (json) {
-            //                 // Update the products data property with the fetched data
-            //                 webstore.products = json;
-            //                 console.log(json);
-            //             });
-            //         })
-            //         .catch(function (error) {
-            //             console.error('Error fetching data:', error);
-            //         });
-            // },
             created: function () {
                 console.log("Requesting data from the server ...");
 
                 fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons')  // Adjust the URL based on your server route
-                    .then(response => response.json())
-                    .then(data => {
-                        // Update the products data property with the fetched data
-                        this.products = data;
-                        console.log(data);
-
-                        // After fetching the initial data, update the slots in MongoDB
-                        // based on the products in the shopping cart
-                        this.updateSlotsInMongoDB();
+                    .then(function (response) {
+                        response.json().then(function (json) {
+                            // Update the products data property with the fetched data
+                            webstore.products = json;
+                            console.log(json);
+                        });
                     })
-                    .catch(error => {
+                    .catch(function (error) {
                         console.error('Error fetching data:', error);
                     });
-            },
-            mounted: function () {
-                // Fetch initial data when the page is loaded or refreshed
-                window.addEventListener('load', this.created);
             },
             methods: {
                 // function for adding subject or class into cart
@@ -230,32 +208,6 @@
                             })
                     }
                 },
-                updateSlotsInMongoDB: function () {
-                    // Iterate through the products in the shopping cart
-                    this.cart.forEach(productId => {
-                        // Find the corresponding product in the fetched data
-                        const product = this.products.find(p => p.id === productId);
-
-                        // If the product is found, update the slots in MongoDB
-                        if (product) {
-                            fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    slotsAvailable: product.slotsAvailable + 1, // Increment slots by 1 to revert the change
-                                }),
-                            })
-                                .then(response => {
-                                    console.log('Product slots updated in MongoDB');
-                                })
-                                .catch(error => {
-                                    console.error('Error updating product slots in MongoDB:', error);
-                                });
-                        }
-                    });
-                },
                 // this for swicthing between checkout and home page
                 toggleCartPage: function () {
                     // ? is a ternery operator which works like if else statement, shorthand way of writing if-else
@@ -287,6 +239,28 @@
                     const product = this.products.find(p => p.id === productId);
                     return product ? product.location : '';
                 },
+                // submitForm: function () {
+                //     const orderDetails = {
+                //         name: this.order.Name,
+                //         phone: this.order.Phone,
+                //         lessonIds: this.scart,
+                //         numberOfItems: this.scart.length
+                //     };
+
+                //     fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Orders', {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json',
+                //         },
+                //         body: JSON.stringify(orderDetails),
+                //     })
+                //         .then(response => response.json())
+                //         .then(data => {
+                //             // Handle success (e.g., show a success message)
+                //             alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
+                //             window.location.reload();
+                //         })
+                // },
                 submitForm: function () {
                     const orderDetails = {
                         name: this.order.Name,
@@ -306,9 +280,35 @@
                         .then(data => {
                             // Handle success (e.g., show a success message)
                             alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
+
+                            // Update slots in MongoDB for each product in the order
+                            this.scart.forEach(product => {
+                                fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        slotsAvailable: product.slotsAvailable - 1,
+                                    }),
+                                })
+                                    .then(response => {
+                                        console.log('Product slots updated in MongoDB');
+                                    })
+                                    .catch(error => {
+                                        console.error('Error updating product slots in MongoDB:', error);
+                                    });
+                            });
+
+                            // Reload the page after placing the order
                             window.location.reload();
                         })
+                        .catch(error => {
+                            // Handle error
+                            console.error('Error placing order:', error);
+                        });
                 },
+
                 searchProducts: function () {
                     // Check if searchVal is defined and not empty
                     if (this.searchVal && this.searchVal.trim() !== '') {
