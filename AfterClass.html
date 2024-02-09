@@ -306,7 +306,7 @@
                                         'Content-Type': 'application/json',
                                     },
                                     body: JSON.stringify({
-                                        slotsAvailable: product.slotsAvailable,
+                                        slotsAvailable: product.slotsAvailable -1,
                                     }),
                                 })
                                     .then(response => {
