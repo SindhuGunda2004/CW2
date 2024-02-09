@@ -289,7 +289,7 @@
                         .then(data => {
                             // Handle success (e.g., show a success message)
                             alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
-                            window.location.reload();
+                            // window.location.reload();
                         }),
                         this.scart.forEach(product => {
                             fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
