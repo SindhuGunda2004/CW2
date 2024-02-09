@@ -108,7 +108,7 @@ app.put('/collection/:collectionName/:id', (req, res, next) => {
         }
     );
 });
-
+///REMOVE THIS DELETE PART - AQEEEEEEEELLLLLLLLLL
 app.delete('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.deleteOne(
         { _id: new ObjectID(req.params.id) }, (e, result) => {
