@@ -152,9 +152,10 @@
             },
             methods: {
                 addToCart: function (product) {
-                    // stores only product id
+                    // Decrease slotsAvailable locally
+                    product.slotsAvailable--;
+                    // Store the product in the cart
                     this.cart.push(product.id);
-                    // stores the whole product in the list
                     this.scart.push(product);
                 },
 
@@ -216,17 +217,15 @@
                 //     }
                 // },
                 removeFromCart: function (productId) {
-                    // checking for the index of the product we are removing  
-                    // it's taking the id of the product in scart and checking if it's the same as the id passed in remove product 
                     const index = this.scart.findIndex(product => product.id === productId);
 
                     if (index !== -1) {
-                        // splice removes a specific product at the specified index, and 1 indicates that only 1 product has to be removed 
-                        // and we put [0] because we want the details directly instead of the details in the array
-                        // so basically by putting [0], we are accessing the first element of the array, so we are directly storing the element
                         const removedProduct = this.scart.splice(index, 1)[0];
+                        // Increase slotsAvailable locally
+                        removedProduct.slotsAvailable++;
                     }
                 },
+
 
                 // this for swicthing between checkout and home page
                 toggleCartPage: function () {
@@ -282,14 +281,8 @@
                 //         })
                 // },
                 submitForm: function () {
-                    const orderDetails = {
-                        name: this.order.Name,
-                        phone: this.order.Phone,
-                        lessonIds: this.scart,
-                        numberOfItems: this.scart.length
-                    };
-
-                    fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Orders', {
+                    // ...
+                    fetch('http://your-backend-url/collection/Orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -298,18 +291,17 @@
                     })
                         .then(response => response.json())
                         .then(data => {
-                            // Handle success (e.g., show a success message)
+                            // Handle success
                             alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
-
                             // Update slots in MongoDB for each product in the order
                             this.scart.forEach(product => {
-                                fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                                fetch(`http://your-backend-url/collection/Lessons/${product._id}`, {
                                     method: 'PUT',
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },
                                     body: JSON.stringify({
-                                        slotsAvailable: product.slotsAvailable - 1,
+                                        slotsAvailable: product.slotsAvailable,
                                     }),
                                 })
                                     .then(response => {
@@ -319,7 +311,6 @@
                                         console.error('Error updating product slots in MongoDB:', error);
                                     });
                             });
-
                             // Reload the page after placing the order
                             window.location.reload();
                         })
@@ -328,7 +319,6 @@
                             console.error('Error placing order:', error);
                         });
                 },
-
                 searchProducts: function () {
                     // Check if searchVal is defined and not empty
                     if (this.searchVal && this.searchVal.trim() !== '') {
