@@ -281,7 +281,12 @@
                 //         })
                 // },
                 submitForm: function () {
-                    // ...
+                    const orderDetails = {
+                        name: this.order.Name,
+                        phone: this.order.Phone,
+                        lessonIds: this.scart,
+                        numberOfItems: this.scart.length
+                    };
                     fetch('http://your-backend-url/collection/Orders', {
                         method: 'POST',
                         headers: {
