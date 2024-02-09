@@ -13,9 +13,10 @@ app.use((req, res, next) => {
     next();
 });
 
+// logger middleware, it will return all the operations performed by user to console
 app.use((req, res, next) => {
     console.log(req.method, req.originalUrl);
-    next(); // Call next middleware in the chain
+    next();
 })
 
 // creating express instance 
@@ -36,12 +37,14 @@ app.get('/', (req, res, next) => {
     res.send('Select a collection /collection/messages');
 });
 
-// get collection name
+// this middleware is to tell that where ever there is collectionName in the link, 
+// this middleware has to be executed first
 app.param('collectionName', (req, res, next, collectionName) => {
     req.collection = db.collection(collectionName);
     return next();
 });
 
+// get method 
 app.get('/collection/:collectionName', (req, res, next) => {
     // finding the collection and converting it to readable format using toArray
     // the e is if there is an error else it will give the results 
@@ -51,6 +54,7 @@ app.get('/collection/:collectionName', (req, res, next) => {
     })
 });
 
+// this middleware returns all lessons in json format
 app.get('/lessons', (req, res, next) => {
     // finding the collection and converting it to readable format using toArray
     // the e is if there is an error else it will give the results 
@@ -61,6 +65,7 @@ app.get('/lessons', (req, res, next) => {
     })
 });
 
+// post method to store data into orders table
 app.post('/collection/:collectionName', (req, res, next) => {
     req.collection.insert(req.body, (e, results) => {
         if (e) return next(e)
@@ -71,13 +76,15 @@ app.post('/collection/:collectionName', (req, res, next) => {
 
 const ObjectID = require("mongodb").ObjectID;
 
+// get method for search funstion
 app.get('/collection/:collectionName/search/:searchQuery', (req, res, next) => {
     // Extracting the search query from the request parameters and converting to lowercase
     const searchQuery = req.params.searchQuery.toLowerCase();
 
-    // Using the find method with case-insensitive search on both subject and location fields
+    // using find to get the matching records
     req.collection.find({
         $or: [
+            // the regex expressions are for case insenstive search
             { subject: { $regex: new RegExp(searchQuery, 'i') } },
             { location: { $regex: new RegExp(searchQuery, 'i') } }
         ]
@@ -89,14 +96,15 @@ app.get('/collection/:collectionName/search/:searchQuery', (req, res, next) => {
     });
 });
 
-app.get('/collection/:collectionName/:id', (req, res, next) => {
-    req.collection.findOne({ _id: new ObjectID(req.params.id) },
-        (e, result) => {
-            if (e) next(e)
-            res.send(result)
-        })
-});
+// app.get('/collection/:collectionName/:id', (req, res, next) => {
+//     req.collection.findOne({ _id: new ObjectID(req.params.id) },
+//         (e, result) => {
+//             if (e) next(e)
+//             res.send(result)
+//         })
+// });
 
+// put method to upadte the avalibale slots of the lessons
 app.put('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.update(
         { _id: new ObjectID(req.params.id) },
@@ -109,32 +117,19 @@ app.put('/collection/:collectionName/:id', (req, res, next) => {
     );
 });
 
-// app.delete('/collection/:collectionName/:id', (req, res, next) => {
-//     req.collection.deleteOne(
-//         { _id: new ObjectID(req.params.id) }, (e, result) => {
-//             if (e) return next(e)
-//             res.send((result.result.n === 1) ? { msg: "success" } : { msg: "error" });
-//         }
-//     );
-// });
-
-// // Serve images using express.static
-// app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
-
-// Serve images using a specific route
+// Image handler middleware
 app.get('/images/:imageName', (req, res, next) => {
-    // Assuming 'static/images' is the directory where images are stored
+    // images are stored inside a file in static file, so thats why static and images are mentioned
     const imagePath = path.join(__dirname, 'static', 'images', req.params.imageName);
     res.sendFile(imagePath);
 });
 
 // Error handling for images
-// Error handling
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).send('Image not found, Maybe you typed the image name wrong!!');
 });
 
-// for AWS
+// port listening format for AWS 
 const port = process.env.PORT || 3000
 app.listen(port)
