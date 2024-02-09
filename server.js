@@ -70,7 +70,7 @@ app.post('/collection/:collectionName', (req, res, next) => {
     req.collection.insert(req.body, (e, results) => {
         if (e) return next(e)
         // this .ops is written so that when data is stored into mongoDB it will be given the unique ID for each product
-        res.send(results.ops)
+        res.send(results.ops) ? { msg: "success" } : { msg: "error" }
     });
 });
 
