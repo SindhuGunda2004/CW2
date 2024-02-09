@@ -139,16 +139,16 @@
                 console.log("Requesting data from the server ...");
 
                 fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/AfterClass.html')  // Adjust the URL based on your server route
-                    // .then(function (response) {
-                    //     response.json().then(function (json) {
-                    //         // Update the products data property with the fetched data
-                    //         webstore.products = json;
-                    //         console.log(json);
-                    //     });
-                    // })
-                    // .catch(function (error) {
-                    //     console.error('Error fetching data:', error);
-                    // });
+                // .then(function (response) {
+                //     response.json().then(function (json) {
+                //         // Update the products data property with the fetched data
+                //         webstore.products = json;
+                //         console.log(json);
+                //     });
+                // })
+                // .catch(function (error) {
+                //     console.error('Error fetching data:', error);
+                // });
             },
             created: function () {
                 console.log("Requesting data from the server ...");
@@ -174,19 +174,19 @@
                     this.scart.push(product);
 
                     // Update MongoDB slotsAvailable
-                    fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            slotsAvailable: product.slotsAvailable - 1,
-                        }),
-                    })
-                        .then(response => {
-                            response.json()
-                            console.log('Product updated in MongoDB');
-                        })
+                    // fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                    //     method: 'PUT',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({
+                    //         slotsAvailable: product.slotsAvailable - 1,
+                    //     }),
+                    // })
+                    //     .then(response => {
+                    //         response.json()
+                    //         console.log('Product updated in MongoDB');
+                    //     })
                     // Checking for the index of the product we are adding into the cart
                     const productIndex = this.products.findIndex(p => p.id === product.id);
                     // Directly updates the slots from here when a product is added to cart
@@ -201,26 +201,42 @@
                         // splice removes a specific product at the specified index, and 1 indicates that only 1 product has to be removed 
                         // and we put [0] because we want the details directly instead of the details in the array
                         // so basically by putting [0], we are accessing the first element of the array, so we are directly storing the element
-                        const removedProduct = this.scart.splice(index, 1)[0];
+                        // const removedProduct = this.scart.splice(index, 1)[0];
 
-                        // Update MongoDB slotsAvailable
-                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${removedProduct._id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                // Assuming your MongoDB document has a slotsAvailable field
-                                // Update this based on your MongoDB document structure
-                                slotsAvailable: removedProduct.slotsAvailable + 1,
-                            }),
-                        })
-                            .then(response => {
-                                // Updates cartIsEmpty by checking whether it's empty or not
-                                removedProduct.slotsAvailable++;
-                                this.cartIsEmpty = this.scart.length === 0;
-                                console.log("slots updated sucesfully", removedProduct.slotsAvailable)
-                            })
+                        //     // Update MongoDB slotsAvailable
+                        //     fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${removedProduct._id}`, {
+                        //         method: 'PUT',
+                        //         headers: {
+                        //             'Content-Type': 'application/json',
+                        //         },
+                        //         body: JSON.stringify({
+                        //             // Assuming your MongoDB document has a slotsAvailable field
+                        //             // Update this based on your MongoDB document structure
+                        //             slotsAvailable: removedProduct.slotsAvailable + 1,
+                        //         }),
+                        //     })
+                        //         .then(response => {
+                        //             // Updates cartIsEmpty by checking whether it's empty or not
+                        //             removedProduct.slotsAvailable++;
+                        //             this.cartIsEmpty = this.scart.length === 0;
+                        //             console.log("slots updated sucesfully", removedProduct.slotsAvailable)
+                        //         })
+                        // }
+                        if (index !== -1) {
+                            // Remove the product from the cart
+                            const removedProduct = this.scart.splice(index, 1)[0];
+
+                            // Increment the slotsAvailable for the removed product
+                            const productIndex = this.products.findIndex(p => p.id === productId);
+                            if (productIndex !== -1) {
+                                this.products[productIndex].slotsAvailable++;
+                            }
+
+                            // Updates cartIsEmpty by checking whether it's empty or not
+                            this.cartIsEmpty = this.scart.length === 0;
+
+                            console.log("Product removed from cart:", removedProduct);
+                        }
                     }
                 },
                 // this for swicthing between checkout and home page
@@ -274,7 +290,27 @@
                             // Handle success (e.g., show a success message)
                             alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
                             window.location.reload();
-                        })
+                        }),
+                        this.scart.forEach(product => {
+                            fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    slotsAvailable: product.slotsAvailable - 1,
+                                }),
+                            })
+                                .then(response => {
+                                    // Updates cartIsEmpty by checking whether it's empty or not
+                                    product.slotsAvailable--;
+                                    this.cartIsEmpty = this.scart.length === 0;
+                                    console.log("slots updated successfully", product.slotsAvailable)
+                                })
+                        });
+
+                    // Reload the page after successful order placement
+                    window.location.reload();
                 },
                 searchProducts: function () {
                     // Check if searchVal is defined and not empty
