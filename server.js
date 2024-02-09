@@ -74,6 +74,7 @@ app.post('/collection/:collectionName', (req, res, next) => {
     });
 });
 
+// importing ObjectID package to generate unique ids mongodb assigns when a new record or document is added
 const ObjectID = require("mongodb").ObjectID;
 
 // get method for search funstion
@@ -96,14 +97,6 @@ app.get('/collection/:collectionName/search/:searchQuery', (req, res, next) => {
     });
 });
 
-// app.get('/collection/:collectionName/:id', (req, res, next) => {
-//     req.collection.findOne({ _id: new ObjectID(req.params.id) },
-//         (e, result) => {
-//             if (e) next(e)
-//             res.send(result)
-//         })
-// });
-
 // put method to upadte the avalibale slots of the lessons
 app.put('/collection/:collectionName/:id', (req, res, next) => {
     req.collection.update(
@@ -120,6 +113,7 @@ app.put('/collection/:collectionName/:id', (req, res, next) => {
 // Image handler middleware
 app.get('/images/:imageName', (req, res, next) => {
     // images are stored inside a file in static file, so thats why static and images are mentioned
+    // req.params.imageName appends the image name with the path
     const imagePath = path.join(__dirname, 'static', 'images', req.params.imageName);
     res.sendFile(imagePath);
 });
