@@ -296,8 +296,6 @@
                     })
                         .then(response => response.json())
                         .then(data => {
-                            // Handle success
-                            alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
                             // Update slots in MongoDB for each product in the order
                             this.scart.forEach(product => {
                                 fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
@@ -316,6 +314,9 @@
                                         console.error('Error updating product slots in MongoDB:', error);
                                     });
                             });
+
+                            // Handle success
+                            alert('Purchase Completed\nYou\'re Enrolled in the subjects!!!!');
                             // Reload the page after placing the order
                             window.location.reload();
                         })
