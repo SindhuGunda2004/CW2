@@ -227,6 +227,32 @@
                             })
                     }
                 },
+                updateSlotsInMongoDB: function () {
+                    // Iterate through the products in the shopping cart
+                    this.cart.forEach(productId => {
+                        // Find the corresponding product in the fetched data
+                        const product = this.products.find(p => p.id === productId);
+
+                        // If the product is found, update the slots in MongoDB
+                        if (product) {
+                            fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    slotsAvailable: product.slotsAvailable + 1, // Increment slots by 1 to revert the change
+                                }),
+                            })
+                                .then(response => {
+                                    console.log('Product slots updated in MongoDB');
+                                })
+                                .catch(error => {
+                                    console.error('Error updating product slots in MongoDB:', error);
+                                });
+                        }
+                    });
+                },
                 // this for swicthing between checkout and home page
                 toggleCartPage: function () {
                     // ? is a ternery operator which works like if else statement, shorthand way of writing if-else
