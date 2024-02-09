@@ -139,16 +139,16 @@
                 console.log("Requesting data from the server ...");
 
                 fetch('http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/AfterClass.html')  // Adjust the URL based on your server route
-                    // .then(function (response) {
-                    //     response.json().then(function (json) {
-                    //         // Update the products data property with the fetched data
-                    //         webstore.products = json;
-                    //         console.log(json);
-                    //     });
-                    // })
-                    // .catch(function (error) {
-                    //     console.error('Error fetching data:', error);
-                    // });
+                // .then(function (response) {
+                //     response.json().then(function (json) {
+                //         // Update the products data property with the fetched data
+                //         webstore.products = json;
+                //         console.log(json);
+                //     });
+                // })
+                // .catch(function (error) {
+                //     console.error('Error fetching data:', error);
+                // });
             },
             created: function () {
                 console.log("Requesting data from the server ...");
@@ -164,6 +164,10 @@
                     .catch(function (error) {
                         console.error('Error fetching data:', error);
                     });
+            },
+            mounted: function () {
+                // Fetch initial data when the page is loaded or refreshed
+                window.addEventListener('load', this.created);
             },
             methods: {
                 // function for adding subject or class into cart
