@@ -151,32 +151,70 @@
                     });
             },
             methods: {
-                // function for adding subject or class into cart
                 addToCart: function (product) {
                     // stores only product id
                     this.cart.push(product.id);
                     // stores the whole product in the list
                     this.scart.push(product);
-
-                    // Update MongoDB slotsAvailable
-                    fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            slotsAvailable: product.slotsAvailable - 1,
-                        }),
-                    })
-                        .then(response => {
-                            response.json()
-                            console.log('Product updated in MongoDB');
-                        })
-                    // Checking for the index of the product we are adding into the cart
-                    const productIndex = this.products.findIndex(p => p.id === product.id);
-                    // Directly updates the slots from here when a product is added to cart
-                    this.products[productIndex].slotsAvailable--;
                 },
+
+                // // function for adding subject or class into cart
+                // addToCart: function (product) {
+                //     // stores only product id
+                //     this.cart.push(product.id);
+                //     // stores the whole product in the list
+                //     this.scart.push(product);
+
+                //     // Update MongoDB slotsAvailable
+                //     fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${product._id}`, {
+                //         method: 'PUT',
+                //         headers: {
+                //             'Content-Type': 'application/json',
+                //         },
+                //         body: JSON.stringify({
+                //             slotsAvailable: product.slotsAvailable - 1,
+                //         }),
+                //     })
+                //         .then(response => {
+                //             response.json()
+                //             console.log('Product updated in MongoDB');
+                //         })
+                //     // Checking for the index of the product we are adding into the cart
+                //     const productIndex = this.products.findIndex(p => p.id === product.id);
+                //     // Directly updates the slots from here when a product is added to cart
+                //     this.products[productIndex].slotsAvailable--;
+                // },
+                // removeFromCart: function (productId) {
+                //     // checking for the index of the product we are removing  
+                //     // it's taking the id of the product in scart and checking if it's the same as the id passed in remove product 
+                //     const index = this.scart.findIndex(product => product.id === productId);
+
+                //     if (index !== -1) {
+                //         // splice removes a specific product at the specified index, and 1 indicates that only 1 product has to be removed 
+                //         // and we put [0] because we want the details directly instead of the details in the array
+                //         // so basically by putting [0], we are accessing the first element of the array, so we are directly storing the element
+                //         const removedProduct = this.scart.splice(index, 1)[0];
+
+                //         // Update MongoDB slotsAvailable
+                //         fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${removedProduct._id}`, {
+                //             method: 'PUT',
+                //             headers: {
+                //                 'Content-Type': 'application/json',
+                //             },
+                //             body: JSON.stringify({
+                //                 // Assuming your MongoDB document has a slotsAvailable field
+                //                 // Update this based on your MongoDB document structure
+                //                 slotsAvailable: removedProduct.slotsAvailable + 1,
+                //             }),
+                //         })
+                //             .then(response => {
+                //                 // Updates cartIsEmpty by checking whether it's empty or not
+                //                 removedProduct.slotsAvailable++;
+                //                 this.cartIsEmpty = this.scart.length === 0;
+                //                 console.log("slots updated sucesfully", removedProduct.slotsAvailable)
+                //             })
+                //     }
+                // },
                 removeFromCart: function (productId) {
                     // checking for the index of the product we are removing  
                     // it's taking the id of the product in scart and checking if it's the same as the id passed in remove product 
@@ -187,27 +225,9 @@
                         // and we put [0] because we want the details directly instead of the details in the array
                         // so basically by putting [0], we are accessing the first element of the array, so we are directly storing the element
                         const removedProduct = this.scart.splice(index, 1)[0];
-
-                        // Update MongoDB slotsAvailable
-                        fetch(`http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Lessons/${removedProduct._id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                // Assuming your MongoDB document has a slotsAvailable field
-                                // Update this based on your MongoDB document structure
-                                slotsAvailable: removedProduct.slotsAvailable + 1,
-                            }),
-                        })
-                            .then(response => {
-                                // Updates cartIsEmpty by checking whether it's empty or not
-                                removedProduct.slotsAvailable++;
-                                this.cartIsEmpty = this.scart.length === 0;
-                                console.log("slots updated sucesfully", removedProduct.slotsAvailable)
-                            })
                     }
                 },
+
                 // this for swicthing between checkout and home page
                 toggleCartPage: function () {
                     // ? is a ternery operator which works like if else statement, shorthand way of writing if-else
