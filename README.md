@@ -3,6 +3,9 @@
 # github CW1 repository link
 # https://github.com/SindhuGunda2004/CW1.git 
 
+# github pages link for CW1
+# https://sindhugunda2004.github.io/CW1/AfterClass.html 
+
 # github CW2 repository link
 # https://github.com/SindhuGunda2004/CW2.git
 
