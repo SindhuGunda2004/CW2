@@ -30,6 +30,6 @@
 # link for adding orders using post
 # http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/collection/Orders
 
-# link for the image handler
+# link for the static image handler
 # http://afterschool-env.eba-ecncmczp.eu-west-2.elasticbeanstalk.com/images/{image name}
 # replace '{image name}' with and image you want to check
