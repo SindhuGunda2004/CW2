@@ -54,16 +54,16 @@ app.get('/collection/:collectionName', (req, res, next) => {
     })
 });
 
-// this middleware returns all lessons in json format
-app.get('/lessons', (req, res, next) => {
-    // finding the collection and converting it to readable format using toArray
-    // the e is if there is an error else it will give the results 
-    req.collection = db.collection("Lessons");
-    req.collection.find({}).toArray((e, results) => {
-        if (e) return next(e);
-        res.send(results);
-    })
-});
+// // this middleware returns all lessons in json format
+// app.get('/lessons', (req, res, next) => {
+//     // finding the collection and converting it to readable format using toArray
+//     // the e is if there is an error else it will give the results 
+//     req.collection = db.collection("Lessons");
+//     req.collection.find({}).toArray((e, results) => {
+//         if (e) return next(e);
+//         res.send(results);
+//     })
+// });
 
 // post method to store data into orders table
 app.post('/collection/:collectionName', (req, res, next) => {
