@@ -1,5 +1,6 @@
 // import dependencies modules
 const express = require('express');
+// creating express instance or initializing express
 const app = express();
 var path = require("path");
 var fs = require("fs");
@@ -19,7 +20,7 @@ app.use((req, res, next) => {
     next();
 })
 
-// creating express instance 
+
 app.use(express.json());
 app.set('port', 3000);
 
